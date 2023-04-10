@@ -70,7 +70,7 @@ def fetch_account_details(account):
     print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}...")
 
     account.setdefault('rank', 'Unknown')
-    account.setdefault('rr', 'N/A')
+    account.setdefault('rr', '??')
     last_fetched = account.get("last_fetched", "01-01-1990")
     now = datetime.now()
 
@@ -88,7 +88,7 @@ def fetch_account_details(account):
 
         if len(rank_rr) == 2:
             account['rank'] = rank_rr[0]
-            account['rr'] = rank_rr[1]
+            account['rr'] = rank_rr[1].removesuffix('RR.')
             account['last_fetched'] = now.strftime("%m-%d-%Y")
         else:
             print(f"Unexpected API response format: {response.text}")
