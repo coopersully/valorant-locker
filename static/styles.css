@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+.card-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 1rem;
+}
+
+.card {
+    background: linear-gradient(135deg, rgba(29, 209, 161, 0.8), rgba(34, 166, 179, 0.8));
+    margin: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    width: 600px; /* Set a fixed width for the cards */
+}
+
+.card-title {
+    font-size: 30px;
+}
+
+.card-title, .card-text {
+    margin: 1rem;
+}
+
+.card-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-column-gap: 1rem;
+}
+
+.rank-container {
+    position: relative;
+}
+
+.rank-box {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    text-align: center;
+    padding: 10px;
+    width: 180px; /* Set a fixed width for the rank box */
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 1rem;
+}
+
+.rank-icon {
+    width: 60px;
+    height: 60px;
+}
+
+.rank-text {
+    margin-top: 10px;
+}
+
+.form-container {
+    background: linear-gradient(135deg, rgba(29, 209, 161, 0.8), rgba(34, 166, 179, 0.8));
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    width: 600px; /* Set a fixed width for the form */
+    margin: 0 auto;
+}

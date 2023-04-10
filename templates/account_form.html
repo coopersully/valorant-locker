@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Add an account{% endblock %}
+
+{% block body %}
+    <h1 class="my-4">Add an account</h1>
+    <div class="form-container">
+        <!-- Account form -->
+        <form action="{{ url_for('add_account') }}" method="post">
+            <!-- Displayname input field -->
+            <div class="form-group">
+                <label for="username">Displayname</label>
+                <input type="text" class="form-control" id="display_name" name="display_name" required>
+            </div>
+            <!-- Tag input field -->
+            <div class="form-group">
+                <label for="username">Tag</label>
+                <input type="text" class="form-control" id="display_tag" name="display_tag" required>
+            </div>
+            <!-- Username input field -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <!-- Password input field -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">Show</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Region input field -->
+            <div class="form-group">
+                <label for="region">Region</label>
+                <select class="form-control" id="region" name="region" required>
+                    <option value="NA">North America (NA)</option>
+                    <option value="EU">European Union (EU)</option>
+                    <option value="AP">Asia-Pacific (AP)</option>
+                    <option value="KR">Korea (KR)</option>
+                </select>
+            </div>
+            <!-- Birthdate input field -->
+            <div class="form-group">
+                <label for="birthdate">Birthdate</label>
+                <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ current_date }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    </div>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = passwordInput.nextElementSibling.firstElementChild;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = 'Show';
+            }
+        }
+    </script>
+{% endblock %}
