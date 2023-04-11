@@ -4,20 +4,28 @@
 
 {% block body %}
     <h1 class="my-4">Accounts ({{ accounts|length }})</h1>
+
+    <!-- Add account button -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ url_for('account_form') }}" class="btn btn-primary">+ Add Account</a>
         <button id="sortBtn" class="btn btn-secondary">Sort: Ascending</button>
     </div>
+
     <!-- Search bar -->
     <div class="form-group">
         <input type="text" class="form-control" id="searchBar" placeholder="Search accounts">
     </div>
-    <!-- Card container for account cards -->
+
+    <!-- Container for all 'Account' cards -->
     <div class="card-container" id="accountsContainer">
-        <!-- Iterate through the accounts and create a card for each one -->
+
+        <!-- Create a card for each account in storage -->
         {% for account in accounts %}
-            <div class="card mb-4 account-card" data-rank="{{ account.rank }}">
+
+            <!-- Account card -->
+            <div class="card mb-4 account-card hover-3d" data-rank="{{ account.rank }}">
                 <div class="card-body">
+
                     <!-- Account display name and tag -->
                     <div>
                         <h5 class="card-title">{{ account.display.name }}#{{ account.display.tag }}</h5>
@@ -37,6 +45,7 @@
                             <strong>Birthdate:</strong> {{ account.birthdate }}
                         </p>
                     </div>
+
                     <!-- Rank container -->
                     <div class="rank-container">
                         <div class="rank-box">
@@ -47,14 +56,20 @@
                             <div class="rank-text">{{ account.rank }} ({{ account.rr }} RR)</div>
                         </div>
                     </div>
+
                 </div>
             </div>
+
         {% endfor %}
+
     </div>
 
     <script>
+
+        // "Copy to clipboard" functionality
         const clipboard = new ClipboardJS('.copy-btn');
 
+        // Sorting cards by rank
         const RANKS_ORDER = [
             'Iron 1', 'Iron 2', 'Iron 3',
             'Bronze 1', 'Bronze 2', 'Bronze 3',
@@ -98,7 +113,8 @@
                 accountsContainer.appendChild(card);
             }
         }
-        
+
+        // Search bar functionality
         const searchBar = document.getElementById('searchBar');
 
         searchBar.addEventListener('input', () => {

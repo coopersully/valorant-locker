@@ -68,3 +68,13 @@ body {
     width: 600px; /* Set a fixed width for the form */
     margin: 0 auto;
 }
+
+.hover-3d {
+  transition: transform 0.2s, box-shadow 0.2s;
+  will-change: transform, box-shadow;
+}
+
+.hover-3d:hover {
+  transform: translateY(-8px) scale(105%);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+}
