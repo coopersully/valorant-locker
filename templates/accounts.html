@@ -50,7 +50,7 @@
                     <div class="rank-container">
                         <div class="rank-box">
                             <!-- Rank icon -->
-                            <img src="{{ url_for('static', filename='rank_images/' + account.rank + '.png') }}"
+                            <img src="{{ url_for('static', filename='img/rank_images/' + account.rank + '.png') }}"
                                  alt="{{ account.rank }}" class="rank-icon">
                             <!-- Rank text -->
                             <div class="rank-text">{{ account.rank }} ({{ account.rr }} RR)</div>
@@ -131,4 +131,5 @@
             });
         }
     </script>
+
 {% endblock %}

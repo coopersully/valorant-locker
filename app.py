@@ -2,9 +2,19 @@ import json
 from datetime import datetime, timedelta
 
 import requests
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+
+from User import load_users
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key_here"  # Replace with your actual secret key
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+users = load_users()
 
 
 def load_accounts():
@@ -23,7 +33,14 @@ def save_accounts(accounts):
 accounts_data = load_accounts()
 
 
+@app.before_request
+def check_authentication():
+    if not current_user.is_authenticated and request.endpoint != 'login':
+        return redirect(url_for('login'))
+
+
 @app.route('/')
+@login_required
 def accounts():
     updated_accounts = []
     for account in accounts_data:
@@ -41,12 +58,14 @@ def accounts():
 
 
 @app.route('/add_account', methods=['GET'])
+@login_required
 def account_form():
     current_date = datetime.now().strftime('%Y-%m-%d')
     return render_template('account_form.html', current_date=current_date)
 
 
 @app.route('/add_account', methods=['POST'])
+@login_required
 def add_account():
     new_account = {
         "username": request.form['username'],
@@ -93,11 +112,36 @@ def fetch_account_details(account):
         else:
             print(f"Unexpected API response format: {response.text}")
     else:
-        print(f"API request for {account['display']['name']}#{account['display']['tag']} failed with status code {response.status_code}")
+        print(
+            f"API request for {account['display']['name']}#{account['display']['tag']} failed with status code {response.status_code}")
 
     print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}... Done. :)")
 
     return account
+
+@login_manager.user_loader
+def load_user(auth_key):
+    return users.get(auth_key)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        auth_key = request.form['auth_key']
+        user = users.get(auth_key)
+        if user:
+            login_user(user)
+            return redirect(url_for('accounts'))
+        else:
+            flash('Invalid authentication key.', 'danger')
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
