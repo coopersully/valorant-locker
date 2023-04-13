@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 
 import requests
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from User import load_users
@@ -35,33 +35,44 @@ accounts_data = load_accounts()
 
 @app.before_request
 def check_authentication():
+    # Exclude static folder from the authentication check
+    if request.path.startswith('/static/') or request.path.startswith('/img/') or request.path.startswith(
+            '/favicon.ico'):
+        return
     if not current_user.is_authenticated and request.endpoint != 'login':
+        print(f'Redirected request from {request.path}')
         return redirect(url_for('login'))
 
 
 @app.route('/')
 @login_required
 def accounts():
-    updated_accounts = []
-    for account in accounts_data:
+    accounts_updated = False  # Add this line to track if any accounts were updated
+
+    for i, account in enumerate(accounts_data):
         last_fetched = account.get("last_fetched", "Never")
         if last_fetched:
-            last_fetched_dt = datetime.strptime(last_fetched, "%m-%d-%Y")
+            last_fetched_dt = datetime.strptime(last_fetched, "%m/%d/%Y")
             if (datetime.now() - last_fetched_dt) >= timedelta(days=3):
-                updated_accounts.append(fetch_account_details(account))
-            else:
-                updated_accounts.append(account)
+                updated_account = fetch_account_details(account)
+                accounts_data[i] = updated_account  # Update the accounts_data list with the updated account data
+                accounts_updated = True  # Set accounts_updated to True if an account was updated
         else:
-            updated_accounts.append(fetch_account_details(account))
+            updated_account = fetch_account_details(account)
+            accounts_data[i] = updated_account  # Update the accounts_data list with the updated account data
+            accounts_updated = True  # Set accounts_updated to True if an account was updated
 
-    return render_template('accounts.html', accounts=updated_accounts)
+    # Save the updated accounts to the JSON file if any accounts were updated
+    if accounts_updated:
+        save_accounts(accounts_data)
+
+    return render_template('accounts.html', accounts=accounts_data)
 
 
 @app.route('/add_account', methods=['GET'])
 @login_required
 def account_form():
-    current_date = datetime.now().strftime('%Y-%m-%d')
-    return render_template('account_form.html', current_date=current_date)
+    return render_template('account_form.html')
 
 
 @app.route('/add_account', methods=['POST'])
@@ -75,10 +86,9 @@ def add_account():
             "tag": request.form['display_tag']
         },
         "region": request.form['region'],
-        "birthdate": datetime.now().strftime("%m-%d-%Y"),
         "rank": "",
         "rr": "",
-        "last_fetched": "01-01-1990"
+        "last_fetched": "01/01/1990"
     }
     accounts_data.append(new_account)
     save_accounts(accounts_data)
@@ -90,11 +100,11 @@ def fetch_account_details(account):
 
     account.setdefault('rank', 'Unknown')
     account.setdefault('rr', '??')
-    last_fetched = account.get("last_fetched", "01-01-1990")
+    last_fetched = account.get("last_fetched", "01/01/1990")
     now = datetime.now()
 
     if last_fetched:
-        last_fetched_dt = datetime.strptime(last_fetched, "%m-%d-%Y")
+        last_fetched_dt = datetime.strptime(last_fetched, "%m/%d/%Y")
         if (now - last_fetched_dt) < timedelta(days=3):
             print(f"Already fetched recently; sending old data.")
             return account
@@ -108,7 +118,7 @@ def fetch_account_details(account):
         if len(rank_rr) == 2:
             account['rank'] = rank_rr[0]
             account['rr'] = rank_rr[1].removesuffix('RR.')
-            account['last_fetched'] = now.strftime("%m-%d-%Y")
+            account['last_fetched'] = now.strftime("%m/%d/%Y")
         else:
             print(f"Unexpected API response format: {response.text}")
     else:
@@ -118,6 +128,7 @@ def fetch_account_details(account):
     print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}... Done. :)")
 
     return account
+
 
 @login_manager.user_loader
 def load_user(auth_key):

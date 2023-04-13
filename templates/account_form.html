@@ -28,7 +28,9 @@
                 <div class="input-group">
                     <input type="password" class="form-control" id="password" name="password" required>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">Show</button>
+                        <button class="btn btn-primary" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -42,11 +44,6 @@
                     <option value="KR">Korea (KR)</option>
                 </select>
             </div>
-            <!-- Birthdate input field -->
-            <div class="form-group">
-                <label for="birthdate">Birthdate</label>
-                <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ current_date }}" required>
-            </div>
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </form>
     </div>
@@ -56,10 +53,10 @@
             const toggleButton = passwordInput.nextElementSibling.firstElementChild;
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleButton.textContent = 'Hide';
+                toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>'
             } else {
                 passwordInput.type = 'password';
-                toggleButton.textContent = 'Show';
+                toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
             }
         }
     </script>

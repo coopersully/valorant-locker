@@ -13,6 +13,9 @@
     <!-- ClipboardJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
@@ -22,18 +25,27 @@
 
 <body>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <!-- Add your image URL below -->
-            <img src="/img/safe-closed.png" class="img-fluid mb-4" style="max-height: 300px;">
-            <form method="post">
-                <div class="form-group">
-                    <label for="auth_key">Authentication Key:</label>
-                    <input type="text" class="form-control" id="auth_key" name="auth_key" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="col-md-6 text-center d-flex flex-column">
+            <img src="{{ url_for('static', filename='img/safe-closed.png') }}" class="img-fluid mb-4 mx-auto"
+                 style="max-height: 300px;">
+        </div>
+        <div class="card gradient-card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="auth_key" name="auth_key"
+                               placeholder="Authentication Key" required>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-unlock"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
         </div>
     </div>
 </div>

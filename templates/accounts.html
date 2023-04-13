@@ -23,37 +23,101 @@
         {% for account in accounts %}
 
             <!-- Account card -->
-            <div class="card mb-4 account-card hover-3d" data-rank="{{ account.rank }}">
+            <div class="card mb-4 account-card hover-3d" data-rank="{{ account.rank }}" style="
+                    {% if 'Iron' in account.rank %}
+                        background: linear-gradient(135deg, rgba(82,36,36,0.8), rgba(66,57,57,0.8));
+                    {% elif 'Bronze' in account.rank %}
+                        background: linear-gradient(135deg, rgba(121, 85, 72, 0.8), rgba(141, 110, 99, 0.8));
+                    {% elif 'Silver' in account.rank %}
+                        background: linear-gradient(135deg, rgba(96, 125, 139, 0.8), rgba(120, 144, 156, 0.8));
+                    {% elif 'Gold' in account.rank %}
+                        background: linear-gradient(135deg, rgba(206,190,48,0.8), rgba(199,136,72,0.8));
+                    {% elif 'Platinum' in account.rank %}
+                        background: linear-gradient(135deg, rgba(13, 71, 161, 0.8), rgba(25, 118, 210, 0.8));
+                    {% elif 'Diamond' in account.rank %}
+                        background: linear-gradient(135deg, rgba(149, 117, 205, 0.8), rgba(179, 157, 219, 0.8));
+                    {% elif 'Immortal' in account.rank %}
+                        background: linear-gradient(135deg, rgba(233, 30, 99, 0.8), rgba(236, 64, 122, 0.8));
+                    {% elif 'Radiant' in account.rank %}
+                        background: linear-gradient(135deg, rgba(255, 152, 0, 0.8), rgba(255, 193, 7, 0.8));
+                    {% else %}
+                        background: linear-gradient(135deg, rgb(110, 113, 117), rgb(79, 86, 90));
+                    {% endif %}
+                    ">
+                <h2 class="card-title text-center mb-4">{{ account.display.name }}#{{ account.display.tag }}</h2>
                 <div class="card-body">
 
-                    <!-- Account display name and tag -->
-                    <div>
-                        <h5 class="card-title">{{ account.display.name }}#{{ account.display.tag }}</h5>
-                        <!-- Account details -->
-                        <p class="card-text">
-                            <strong>Username:</strong>
-                            <button type="button" class="btn btn-sm btn-secondary ml-2 copy-btn"
-                                    data-clipboard-text="{{ account.username }}">Copy to clipboard
-                            </button>
-                            <br>
-                            <strong>Password:</strong>
-                            <button type="button" class="btn btn-sm btn-secondary ml-2 copy-btn"
-                                    data-clipboard-text="{{ account.password }}">Copy to clipboard
-                            </button>
-                            <br>
-                            <strong>Region:</strong> {{ account.region }}<br>
-                            <strong>Birthdate:</strong> {{ account.birthdate }}
-                        </p>
+                    <!-- Left 75% of card -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="username"
+                                           value="{{ account.username }}" readonly>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary copy-btn"
+                                                data-clipboard-text="{{ account.username }}">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password"
+                                           value="{{ account.password }}" readonly>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary copy-btn"
+                                                data-clipboard-text="{{ account.password }}">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right 25% of card -->
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <img src="{{ url_for('static', filename='img/rank_images/' + account.rank + '.png') }}"
+                                     class="img-fluid" alt="{{ account.rank }}" width="150px">
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- Rank container -->
-                    <div class="rank-container">
-                        <div class="rank-box">
-                            <!-- Rank icon -->
-                            <img src="{{ url_for('static', filename='img/rank_images/' + account.rank + '.png') }}"
-                                 alt="{{ account.rank }}" class="rank-icon">
-                            <!-- Rank text -->
-                            <div class="rank-text">{{ account.rank }} ({{ account.rr }} RR)</div>
+                    <br>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="rank-title">Region</label>
+                                <input type="text" class="form-control" id="region"
+                                       value="{{ account.region }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="rank-rating">Last Update</label>
+                                <input type="text" class="form-control" id="last_fetched"
+                                       value="{{ account.last_fetched }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="rank-title">Rank Title</label>
+                                <input type="text" class="form-control" id="rank-title"
+                                       value="{{ account.rank }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="rank-rating">Rank Rating</label>
+                                <input type="text" class="form-control" id="rank-rating"
+                                       value="{{ account.rr }}" readonly>
+                            </div>
                         </div>
                     </div>
 
