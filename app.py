@@ -36,9 +36,10 @@ accounts_data = load_accounts()
 @app.before_request
 def check_authentication():
     # Exclude static folder from the authentication check
-    if request.path.startswith('/static/') or request.path.startswith('/img/') or request.path.startswith(
-            '/favicon.ico'):
+    if request.path.__contains__('.svg') or request.path.__contains__('.png') or request.path.__contains__(
+            '.jpg') or request.path.__contains__('.css'):
         return
+
     if not current_user.is_authenticated and request.endpoint != 'login':
         print(f'Redirected request from {request.path}')
         return redirect(url_for('login'))
@@ -86,8 +87,8 @@ def add_account():
             "tag": request.form['display_tag']
         },
         "region": request.form['region'],
-        "rank": "",
-        "rr": "",
+        "rank": "Unknown",
+        "rr": "??",
         "last_fetched": "01/01/1990"
     }
     accounts_data.append(new_account)
@@ -97,7 +98,6 @@ def add_account():
 
 def fetch_account_details(account):
     print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}...")
-
     account.setdefault('rank', 'Unknown')
     account.setdefault('rr', '??')
     last_fetched = account.get("last_fetched", "01/01/1990")
@@ -123,7 +123,7 @@ def fetch_account_details(account):
             print(f"Unexpected API response format: {response.text}")
     else:
         print(
-            f"API request for {account['display']['name']}#{account['display']['tag']} failed with status code {response.status_code}")
+            f"API request for {account['display']['name']}#{account['display']['tag']} failed with status code {response.status_code}. Setting rank to 'Unknown' and RR to '??'.")
 
     print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}... Done. :)")
 
