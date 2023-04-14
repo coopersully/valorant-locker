@@ -130,18 +130,23 @@ def fetch_account_details(account):
 
     if response.status_code == 200:
         rank_rr = response.text.split(" - ")
-
         if len(rank_rr) == 2:
+
             account['rank'] = rank_rr[0]
+            if account['rank'] == 'null': account['rank'] = 'Unknown'
+
             account['rr'] = rank_rr[1].removesuffix('RR.')
+            if account['rr'] == 'null': account['rr'] = '??'
+
             account['last_fetched'] = now.strftime("%m/%d/%Y")
         else:
             print(f"Unexpected API response format: {response.text}")
     else:
-        print(
-            f"API request for {acc} failed with status code {response.status_code}."
-            f"Setting rank to 'Unknown' and RR to '??'."
-        )
+        print(f"API request for {acc} failed with status code {response.status_code}.")
+        print(f"Setting rank to 'Unknown' and RR to '??'.")
+
+        account['rank'] = 'Unknown'
+        account['rr'] = '??'
 
     print(f"Fetching account details for {acc}... Done!")
     return account
