@@ -44,11 +44,26 @@ body {
 }
 
 .hover-3d {
-  transition: transform 0.2s, box-shadow 0.2s;
-  will-change: transform, box-shadow;
+    transition: transform 0.2s, box-shadow 0.2s;
+    will-change: transform, box-shadow;
 }
 
 .hover-3d:hover {
-  transform: translateY(-8px) scale(105%);
-  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px) scale(105%);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+}
+
+.login {
+    margin-top: 15%;
+    background: white;
+    width: 25%;
+    padding: 50px 0 50px 0;
+    border-radius: 20px;
+}
+
+.login-bg {
+    background-color: #f7f7f7;
+    background-image: radial-gradient(#80b9ff 1.4500000000000002px, transparent 1.4500000000000002px), radial-gradient(#80b9ff 1.4500000000000002px, #f7f7f7 1.4500000000000002px);
+    background-size: 58px 58px;
+    background-position: 0 0, 29px 29px;
 }

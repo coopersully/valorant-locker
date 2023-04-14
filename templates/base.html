@@ -26,17 +26,21 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar sticky-top navbar-expand-lg navbar-light justify-content-between" style="background: transparent; height: 60px;">
     <div class="container-fluid">
+
+        <!-- Navbar branding -->
         <a class="navbar-brand" href="#">
-            <img src="/favicon.svg" width="30" height="30"
-                 class="d-inline-block align-top" alt="">
+            <img src="{{ url_for('static', filename='altbox.svg') }}" width="30" height="30" class="d-inline-block align-top" alt="Altbox">
+            <img src="{{ url_for('static', filename='altbox-text.svg') }}" height="30" class="d-inline-block align-top" alt="Altbox">
         </a>
+
         <!-- Navbar toggle button for mobile devices -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <!-- Navbar menu items -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
@@ -48,7 +52,11 @@
                 </li>
             </ul>
         </div>
+
     </div>
+
+    <!-- Logout button -->
+    <button class="btn btn-primary" style="white-space: nowrap;" type="submit" href="{{ url_for('logout') }}">Log Out</button>
 </nav>
 
 <!-- Main content container -->

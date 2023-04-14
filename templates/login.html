@@ -23,32 +23,79 @@
     <title>Login</title>
 </head>
 
-<body>
+<body class="login-bg">
 
-<div class="container h-100">
-    <div class="row h-100 justify-content-center align-items-center">
-        <div class="col-md-6 text-center d-flex flex-column">
-            <img src="{{ url_for('static', filename='img/safe-closed.png') }}" class="img-fluid mb-4 mx-auto"
-                 style="max-height: 300px;">
-        </div>
-        <div class="card gradient-card">
-            <div class="card-body">
-                <form method="post">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="auth_key" name="auth_key"
-                               placeholder="Authentication Key" required>
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-unlock"></i>
-                            </button>
-                        </div>
+<div class="container login">
+    <div class="row">
+        <img class="img-responsive center-block d-block mx-auto" src="/static/altbox-text.svg" alt="altbox"
+             width="40%">
+    </div>
+    <br>
+    <div class="row justify-content-center">
+        <form method="post">
+            {#            <!-- Username input field -->#}
+            {#            <div class="form-group">#}
+            {#                <input type="text" class="form-control" id="username" name="username" placeholder="Username"#}
+            {#                       required disabled>#}
+            {#            </div>#}
+            {#            <!-- Password input field -->#}
+            {#            <div class="form-group">#}
+            {#                <div class="input-group">#}
+            {#                    <input type="password" class="form-control" id="password" name="password" placeholder="Password"#}
+            {#                           required disabled>#}
+            {#                    <div class="input-group-append">#}
+            {#                        <button class="btn btn-primary" onclick="togglePasswordVisibility()">#}
+            {#                            <i class="fas fa-eye"></i>#}
+            {#                        </button>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#            </div>#}
+            <!-- Auth key input field -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="password" class="form-control" id="auth_key" name="auth_key"
+                           placeholder="Authentication Key"
+                           required>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="toggleAuthKeyVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
-                </form>
-
+                </div>
             </div>
-        </div>
+        </form>
+    </div>
+    <div class="row justify-content-center">
+        <button type="submit" class="btn btn-primary mt-3 ms-auto">Login</button>
     </div>
 </div>
+
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = passwordInput.nextElementSibling.firstElementChild;
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>'
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    }
+
+    function toggleAuthKeyVisibility() {
+        const passwordInput = document.getElementById('auth_key');
+        const toggleButton = passwordInput.nextElementSibling.firstElementChild;
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>'
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    }
+</script>
 
 <!-- Popper.js and Bootstrap JavaScript files -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
