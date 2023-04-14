@@ -3,3 +3,4 @@ accounts.json
 __pycache__/*
 users.json
 templates/test.html
+.env

@@ -1,14 +1,18 @@
 import json
+import os
 from datetime import datetime, timedelta
 
 import requests
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from User import load_users
 
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # Replace with your actual secret key
+app.secret_key = os.environ.get("secret_key")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -16,7 +20,12 @@ login_manager.login_view = "login"
 
 users = load_users()
 
+DEFAULT_LAST_FETCHED = "01/01/1990"
+DEFAULT_RANK = "Unknown"
+DEFAULT_RR = "??"
 
+
+# Load accounts from the JSON file
 def load_accounts():
     try:
         with open('accounts.json', 'r') as f:
@@ -25,14 +34,16 @@ def load_accounts():
         return []
 
 
-def save_accounts(accounts):
+# Save accounts to the JSON file
+def save_accounts(new_accounts_data):
     with open('accounts.json', 'w') as f:
-        json.dump(accounts, f, indent=2)
+        json.dump(new_accounts_data, f, indent=2)
 
 
 accounts_data = load_accounts()
 
 
+# Check user authentication before each request
 @app.before_request
 def check_authentication():
     # Exclude static folder from the authentication check
@@ -45,37 +56,39 @@ def check_authentication():
         return redirect(url_for('login'))
 
 
+# Display accounts and update them if necessary
 @app.route('/')
 @login_required
 def accounts():
-    accounts_updated = False  # Add this line to track if any accounts were updated
+    accounts_updated = False
 
     for i, account in enumerate(accounts_data):
-        last_fetched = account.get("last_fetched", "Never")
+        last_fetched = account.get("last_fetched", DEFAULT_LAST_FETCHED)
         if last_fetched:
             last_fetched_dt = datetime.strptime(last_fetched, "%m/%d/%Y")
             if (datetime.now() - last_fetched_dt) >= timedelta(days=3):
                 updated_account = fetch_account_details(account)
-                accounts_data[i] = updated_account  # Update the accounts_data list with the updated account data
-                accounts_updated = True  # Set accounts_updated to True if an account was updated
+                accounts_data[i] = updated_account
+                accounts_updated = True
         else:
             updated_account = fetch_account_details(account)
-            accounts_data[i] = updated_account  # Update the accounts_data list with the updated account data
-            accounts_updated = True  # Set accounts_updated to True if an account was updated
+            accounts_data[i] = updated_account
+            accounts_updated = True
 
-    # Save the updated accounts to the JSON file if any accounts were updated
     if accounts_updated:
         save_accounts(accounts_data)
 
     return render_template('accounts.html', accounts=accounts_data)
 
 
+# Show the form to add a new account
 @app.route('/add_account', methods=['GET'])
 @login_required
 def account_form():
     return render_template('account_form.html')
 
 
+# Add a new account and save it
 @app.route('/add_account', methods=['POST'])
 @login_required
 def add_account():
@@ -87,20 +100,23 @@ def add_account():
             "tag": request.form['display_tag']
         },
         "region": request.form['region'],
-        "rank": "Unknown",
-        "rr": "??",
-        "last_fetched": "01/01/1990"
+        "rank": DEFAULT_RANK,
+        "rr": DEFAULT_RR,
+        "last_fetched": DEFAULT_LAST_FETCHED
     }
     accounts_data.append(new_account)
     save_accounts(accounts_data)
     return redirect(url_for('accounts'))
 
 
+# Fetch account details and update the account object
 def fetch_account_details(account):
-    print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}...")
-    account.setdefault('rank', 'Unknown')
-    account.setdefault('rr', '??')
-    last_fetched = account.get("last_fetched", "01/01/1990")
+    acc = f"{account['display']['name']}#{account['display']['tag']}"
+    print(f"Fetching account details for {acc}...")
+
+    account.setdefault('rank', DEFAULT_RANK)
+    account.setdefault('rr', DEFAULT_RR)
+    last_fetched = account.get("last_fetched", DEFAULT_LAST_FETCHED)
     now = datetime.now()
 
     if last_fetched:
@@ -123,10 +139,11 @@ def fetch_account_details(account):
             print(f"Unexpected API response format: {response.text}")
     else:
         print(
-            f"API request for {account['display']['name']}#{account['display']['tag']} failed with status code {response.status_code}. Setting rank to 'Unknown' and RR to '??'.")
+            f"API request for {acc} failed with status code {response.status_code}."
+            f"Setting rank to 'Unknown' and RR to '??'."
+        )
 
-    print(f"Fetching account details for {account['display']['name']}#{account['display']['tag']}... Done. :)")
-
+    print(f"Fetching account details for {acc}... Done!")
     return account
 
 
