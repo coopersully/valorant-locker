@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from User import load_users
@@ -54,6 +54,12 @@ def check_authentication():
     if not current_user.is_authenticated and request.endpoint != 'login':
         print(f'Redirected request from {request.path}')
         return redirect(url_for('login'))
+
+
+# Favicon
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 # Display accounts and update them if necessary
