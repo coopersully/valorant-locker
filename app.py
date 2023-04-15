@@ -166,6 +166,7 @@ def load_user(auth_key):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        print('User is attempting to login.')
         auth_key = request.form['auth_key']
         user = users.get(auth_key)
         if user:
