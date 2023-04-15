@@ -6,3 +6,4 @@ templates/test.html
 .env
 
 .vercel
+/.test/

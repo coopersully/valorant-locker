@@ -1,12 +1,14 @@
 import json
 import os
 from datetime import datetime, timedelta
+import random
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
+import User
 from User import load_users
 
 load_dotenv()
@@ -18,29 +20,36 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-users = load_users()
-
 DEFAULT_LAST_FETCHED = "01/01/1990"
 DEFAULT_RANK = "Unknown"
 DEFAULT_RR = "??"
+
+USERS_FILE = os.environ.get("users_path")
+ACCOUNTS_FILE = os.environ.get("accounts_path")
+
+live_users = load_users(USERS_FILE)
 
 
 # Load accounts from the JSON file
 def load_accounts():
     try:
-        with open('accounts.json', 'r') as f:
+        with open(ACCOUNTS_FILE, 'r') as f:
             return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+    except FileNotFoundError:
+        default = "[]"
+        save_accounts(json.loads(default))
+        return load_accounts()
+    except json.JSONDecodeError:
         return []
 
 
 # Save accounts to the JSON file
-def save_accounts(new_accounts_data):
-    with open('accounts.json', 'w') as f:
-        json.dump(new_accounts_data, f, indent=2)
+def save_accounts(accounts_json):
+    with open(ACCOUNTS_FILE, 'w') as f:
+        json.dump(accounts_json, f, indent=2)
 
 
-accounts_data = load_accounts()
+live_accounts = load_accounts()
 
 
 # Check user authentication before each request
@@ -59,7 +68,8 @@ def check_authentication():
 # Favicon
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
 
 
 # Display accounts and update them if necessary
@@ -68,23 +78,23 @@ def favicon():
 def accounts():
     accounts_updated = False
 
-    for i, account in enumerate(accounts_data):
+    for i, account in enumerate(live_accounts):
         last_fetched = account.get("last_fetched", DEFAULT_LAST_FETCHED)
         if last_fetched:
             last_fetched_dt = datetime.strptime(last_fetched, "%m/%d/%Y")
             if (datetime.now() - last_fetched_dt) >= timedelta(days=3):
                 updated_account = fetch_account_details(account)
-                accounts_data[i] = updated_account
+                live_accounts[i] = updated_account
                 accounts_updated = True
         else:
             updated_account = fetch_account_details(account)
-            accounts_data[i] = updated_account
+            live_accounts[i] = updated_account
             accounts_updated = True
 
     if accounts_updated:
-        save_accounts(accounts_data)
+        save_accounts(live_accounts)
 
-    return render_template('accounts.html', accounts=accounts_data)
+    return render_template('accounts.html', accounts=live_accounts)
 
 
 # Show the form to add a new account
@@ -110,8 +120,8 @@ def add_account():
         "rr": DEFAULT_RR,
         "last_fetched": DEFAULT_LAST_FETCHED
     }
-    accounts_data.append(new_account)
-    save_accounts(accounts_data)
+    live_accounts.append(new_account)
+    save_accounts(live_accounts)
     return redirect(url_for('accounts'))
 
 
@@ -160,7 +170,7 @@ def fetch_account_details(account):
 
 @login_manager.user_loader
 def load_user(auth_key):
-    return users.get(auth_key)
+    return live_users.get(auth_key)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -168,11 +178,13 @@ def login():
     if request.method == 'POST':
         print('User is attempting to login.')
         auth_key = request.form['auth_key']
-        user = users.get(auth_key)
+        user = live_users.get(auth_key)
         if user:
+            print('Success! Logging in...')
             login_user(user)
             return redirect(url_for('accounts'))
         else:
+            print('Failure! Invalid credentials.')
             flash('Invalid authentication key.', 'danger')
     return render_template('login.html')
 
@@ -182,6 +194,89 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.route('/control-panel')
+@login_required
+def control_panel():
+    if not User.is_master(current_user):
+        return redirect(url_for('nope'))
+
+    return render_template('control_panel.html')
+
+
+@app.route('/import-accounts', methods=['POST'])
+@login_required
+def import_accounts():
+    if not User.is_master(current_user):
+        return
+
+    file = request.files['accountsFile']
+    print(f'{file}\n{type(file)}')
+
+    if not file:
+        flash('No file uploaded', 'danger')
+        return redirect(url_for('control_panel'))
+
+    if file.filename.rsplit('.', 1)[1].lower() != 'json':
+        flash('Invalid file type. Please upload a JSON file.', 'danger')
+        return redirect(url_for('control_panel'))
+
+    try:
+        data = json.load(file)
+        save_accounts(data)
+
+        global live_accounts
+        live_accounts = load_accounts()
+
+        flash('Accounts imported successfully', 'success')
+    except json.JSONDecodeError:
+        flash('Invalid JSON file. Please check the file and try again.', 'danger')
+
+    return redirect(url_for('control_panel'))
+
+
+@app.route('/import-users', methods=['POST'])
+@login_required
+def import_users():
+    if not User.is_master(current_user):
+        return
+
+    file = request.files['usersFile']
+    if not file:
+        flash('No file uploaded', 'danger')
+        return redirect(url_for('control_panel'))
+
+    if file.filename.rsplit('.', 1)[1].lower() != 'json':
+        flash('Invalid file type. Please upload a JSON file.', 'danger')
+        return redirect(url_for('control_panel'))
+
+    try:
+        data = json.load(file)
+        User.save_users(USERS_FILE, data)
+
+        global live_users
+        live_users = load_users(USERS_FILE)
+
+        flash('Users imported successfully', 'success')
+    except json.JSONDecodeError:
+        flash('Invalid JSON file. Please check the file and try again.', 'danger')
+
+    return redirect(url_for('control_panel'))
+
+
+@app.route('/nope')
+def access_denied():
+    subtitles = [
+        "lol get scammed",
+        "sike u thought",
+        "nice try, buster",
+        "u just walked the prank",
+        "skill issue",
+        "back to the gulag"
+    ]
+    subtitle = random.choice(subtitles)
+    return render_template('nope.html', subtitle=subtitle)
 
 
 if __name__ == '__main__':

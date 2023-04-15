@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block body %}
+    <div class="jumbotron jumbotron-fluid bg-danger">
+        <div class="container">
+            <p class="display-1 text-center text-white font-weight-bold">{{ subtitle }}</p>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <p class="lead text-center">It seems that your current account does not have the necessary privileges to view this content. If you believe that this is a mistake, please contact a developer for further assistance.</p>
+        <div class="text-center">
+            <a href="{{ url_for('accounts') }}" class="btn btn-lg btn-primary mr-4">Return to Safety</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-lg btn-secondary">Log Out</a>
+        </div>
+    </div>
+{% endblock %}
