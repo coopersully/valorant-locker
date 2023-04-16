@@ -19,6 +19,10 @@ def load_users(users_file):
 
     with open(users_file, 'r') as f:
         data = json.load(f)
+
+    if MASTER_KEY not in data:
+        data[MASTER_KEY] = "Master"
+
     users = {auth_key: User(auth_key, name) for auth_key, name in data.items()}
     return users
 
