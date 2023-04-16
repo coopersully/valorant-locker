@@ -1,55 +1,39 @@
 import json
 import os
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 import User
+from Account import load_accounts, save_accounts
 from User import load_users
 
 load_dotenv()
 
+# App
 app = Flask(__name__)
 app.secret_key = os.environ.get("secret_key")
 
+# Login functionality
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+# Storage files
+USERS_FILE = os.environ.get("users_path")
+live_users = load_users(USERS_FILE)
+
+ACCOUNTS_FILE = os.environ.get("accounts_path")
+live_accounts = load_accounts(ACCOUNTS_FILE)
+
+# Account defaults
 DEFAULT_LAST_FETCHED = "01/01/1990"
 DEFAULT_RANK = "Unknown"
 DEFAULT_RR = "??"
-
-USERS_FILE = os.environ.get("users_path")
-ACCOUNTS_FILE = os.environ.get("accounts_path")
-
-live_users = load_users(USERS_FILE)
-
-
-# Load accounts from the JSON file
-def load_accounts():
-    try:
-        with open(ACCOUNTS_FILE, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        default = "[]"
-        save_accounts(json.loads(default))
-        return load_accounts()
-    except json.JSONDecodeError:
-        return []
-
-
-# Save accounts to the JSON file
-def save_accounts(accounts_json):
-    with open(ACCOUNTS_FILE, 'w') as f:
-        json.dump(accounts_json, f, indent=2)
-
-
-live_accounts = load_accounts()
 
 
 # Check user authentication before each request
@@ -92,7 +76,7 @@ def accounts():
             accounts_updated = True
 
     if accounts_updated:
-        save_accounts(live_accounts)
+        save_accounts(ACCOUNTS_FILE, live_accounts)
 
     return render_template('accounts.html', accounts=live_accounts)
 
@@ -121,7 +105,7 @@ def add_account():
         "last_fetched": DEFAULT_LAST_FETCHED
     }
     live_accounts.append(new_account)
-    save_accounts(live_accounts)
+    save_accounts(ACCOUNTS_FILE, live_accounts)
     return redirect(url_for('accounts'))
 
 
@@ -141,7 +125,9 @@ def fetch_account_details(account):
             print(f"Already fetched recently; sending old data.")
             return account
 
-    url = f"https://api.kyroskoh.xyz/valorant/v1/mmr/{account['region']}/{account['display']['name'].replace(' ', '%20')}/{account['display']['tag']}"
+    url = f"https://api.kyroskoh.xyz/valorant/v1/mmr/" \
+          f"{account['region']}/{account['display']['name'].replace(' ', '%20')}/" \
+          f"{account['display']['tag']}"
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -149,10 +135,12 @@ def fetch_account_details(account):
         if len(rank_rr) == 2:
 
             account['rank'] = rank_rr[0]
-            if account['rank'] == 'null': account['rank'] = 'Unknown'
+            if account['rank'] == 'null':
+                account['rank'] = 'Unknown'
 
             account['rr'] = rank_rr[1].removesuffix('RR.')
-            if account['rr'] == 'null': account['rr'] = '??'
+            if account['rr'] == 'null':
+                account['rr'] = '??'
 
             account['last_fetched'] = now.strftime("%m/%d/%Y")
         else:
@@ -224,10 +212,10 @@ def import_accounts():
 
     try:
         data = json.load(file)
-        save_accounts(data)
+        save_accounts(ACCOUNTS_FILE, data)
 
         global live_accounts
-        live_accounts = load_accounts()
+        live_accounts = load_accounts(ACCOUNTS_FILE)
 
         flash('Accounts imported successfully', 'success')
     except json.JSONDecodeError:
