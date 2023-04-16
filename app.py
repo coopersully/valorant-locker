@@ -43,7 +43,8 @@ def check_authentication():
     if request.path.__contains__('.svg')\
             or request.path.__contains__('.png')\
             or request.path.__contains__('.jpg')\
-            or request.path.__contains__('.css'):
+            or request.path.__contains__('.css')\
+            or request.path.__contains__('.ico'):
         return
 
     if not current_user.is_authenticated and request.endpoint != 'login':
