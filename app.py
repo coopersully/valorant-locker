@@ -40,8 +40,10 @@ DEFAULT_RR = "??"
 @app.before_request
 def check_authentication():
     # Exclude static folder from the authentication check
-    if request.path.__contains__('.svg') or request.path.__contains__('.png') or request.path.__contains__(
-            '.jpg') or request.path.__contains__('.css'):
+    if request.path.__contains__('.svg')\
+            or request.path.__contains__('.png')\
+            or request.path.__contains__('.jpg')\
+            or request.path.__contains__('.css'):
         return
 
     if not current_user.is_authenticated and request.endpoint != 'login':
@@ -136,21 +138,21 @@ def fetch_account_details(account):
 
             account['rank'] = rank_rr[0]
             if account['rank'] == 'null':
-                account['rank'] = 'Unknown'
+                account['rank'] = DEFAULT_RANK
 
             account['rr'] = rank_rr[1].removesuffix('RR.')
             if account['rr'] == 'null':
-                account['rr'] = '??'
+                account['rr'] = DEFAULT_RR
 
             account['last_fetched'] = now.strftime("%m/%d/%Y")
         else:
             print(f"Unexpected API response format: {response.text}")
     else:
         print(f"API request for {acc} failed with status code {response.status_code}.")
-        print(f"Setting rank to 'Unknown' and RR to '??'.")
+        print(f"Setting rank to '{DEFAULT_RANK}' and RR to '{DEFAULT_RR}'.")
 
-        account['rank'] = 'Unknown'
-        account['rr'] = '??'
+        account['rank'] = DEFAULT_RANK
+        account['rr'] = DEFAULT_RR
 
     print(f"Fetching account details for {acc}... Done!")
     return account
@@ -189,7 +191,6 @@ def logout():
 def control_panel():
     if not User.is_master(current_user):
         return redirect(url_for('nope'))
-
     return render_template('control_panel.html')
 
 
