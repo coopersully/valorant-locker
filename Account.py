@@ -8,8 +8,8 @@ def load_accounts(accounts_file):
             return json.load(f)
     except FileNotFoundError:
         default = "[]"
-        save_accounts(json.loads(default))
-        return load_accounts()
+        save_accounts(accounts_file, json.loads(default))
+        return load_accounts(accounts_file)
     except json.JSONDecodeError:
         return []
 
