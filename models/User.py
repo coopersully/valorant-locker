@@ -3,7 +3,7 @@ import os
 
 from flask_login import UserMixin
 
-MASTER_KEY = os.environ.get("master_key")
+from config import MASTER_KEY
 
 
 class User(UserMixin):
