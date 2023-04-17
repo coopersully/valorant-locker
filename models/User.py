@@ -1,39 +1,32 @@
-import json
-import os
-
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash
 
+from app import db
 from config import MASTER_KEY
 
 
-class User(UserMixin):
-    def __init__(self, auth_key, name):
-        self.id = auth_key
-        self.name = name
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    permission_level = db.Column(db.Integer, nullable=False, default=0)
 
-
-def load_users(users_file):
-    if not os.path.exists(users_file):
-        default = f'{{ "{MASTER_KEY}": "Master" }}'
-        save_users(users_file, json.loads(default))
-
-    with open(users_file, 'r') as f:
-        data = json.load(f)
-
-    if MASTER_KEY not in data:
-        data[MASTER_KEY] = "Master"
-
-    users = {auth_key: User(auth_key, name) for auth_key, name in data.items()}
-    return users
-
-
-def save_users(users_file, users_json):
-    if MASTER_KEY not in users_json:
-        users_json[MASTER_KEY] = "Master"
-
-    with open(users_file, 'w') as f:
-        json.dump(users_json, f, indent=2)
+    def __init__(self, email, first_name, last_name, username, password):
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.username = username
+        self.password = password
+        self.permission_level = 0
 
 
 def is_master(user):
-    return user.id == MASTER_KEY
+    print(f'Is {user.username} == {MASTER_KEY}?')
+    return user.username == MASTER_KEY
+
+
+def hash_it(password):
+    return generate_password_hash(password, method="sha256")

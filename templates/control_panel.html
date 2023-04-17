@@ -9,33 +9,56 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h2 class="card-title">Import Accounts</h2>
-                    <form action="{{ url_for('import_accounts') }}" method="post" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="accountsFile">Choose a file:</label>
-                            <input type="file" class="form-control-file" id="accountsFile" name="accountsFile"
-                                   accept=".json" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Import Accounts</button>
-                    </form>
+                    <!-- Keep your existing form for importing accounts here -->
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
+            <div class="container">
                 <div class="card-body">
-                    <h2 class="card-title">Import Users</h2>
-                    <form action="{{ url_for('import_users') }}" method="post" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="usersFile">Choose a file:</label>
-                            <input type="file" class="form-control-file" id="usersFile" name="usersFile"
-                                   accept=".json" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Import Users</button>
+                    <h2 class="card-title">Users</h2>
+                    <input class="form-control" id="searchInput" type="text" placeholder="Search...">
+                    <form action="{{ url_for('control_panel') }}" method="post">
+                        <table class="table table-striped mt-2">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Permission Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                {% for user in users %}
+                                    <tr>
+                                        <td><input type="text" name="username-{{ user.id }}" value="{{ user.username }}"></td>
+                                        <td><input type="text" name="email-{{ user.id }}" value="{{ user.email }}"></td>
+                                        <td><input type="text" name="first_name-{{ user.id }}" value="{{ user.first_name }}"></td>
+                                        <td><input type="text" name="last_name-{{ user.id }}" value="{{ user.last_name }}"></td>
+                                        <td><input type="number" name="permission_level-{{ user.id }}" value="{{ user.permission_level }}"></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary">Submit Changes</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById("searchInput").addEventListener("keyup", function () {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.getElementById("usersTable").getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                const rowData = rows[i].textContent.toLowerCase();
+                if (rowData.includes(searchValue)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        });
+    </script>
 {% endblock %}

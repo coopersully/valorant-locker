@@ -67,3 +67,7 @@ body {
     background-size: 58px 58px;
     background-position: 0 0, 29px 29px;
 }
+
+.error-text {
+    color: red;
+}

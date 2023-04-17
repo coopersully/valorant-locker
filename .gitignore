@@ -8,3 +8,5 @@ templates/test.html
 
 .vercel
 /.test/
+
+instance/*
