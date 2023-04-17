@@ -10,3 +10,4 @@ templates/test.html
 /.test/
 
 instance/*
+.vercel
