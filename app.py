@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 
-from config import SECRET_KEY
+from config import SECRET_KEY, DATABASE_PATH
 
 load_dotenv()
 
@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
 # App database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_PATH
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

@@ -12,3 +12,4 @@ DEFAULT_RR = "??"
 DEFAULT_LAST_UPDATED = datetime.strptime("01/01/1990", "%m/%d/%Y")
 
 MASTER_KEY = os.environ.get("master_key")
+DATABASE_PATH = os.environ.get("database_path")
