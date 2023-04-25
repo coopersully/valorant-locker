@@ -15,6 +15,8 @@ load_dotenv()
 # App
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SECURE'] = True
 
 # App database
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_PATH
