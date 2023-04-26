@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_utils import database_exists
 
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
 
@@ -33,9 +34,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-with app.app_context():
-    db.create_all()
-
+if database_exists(SQLALCHEMY_DATABASE_URI):
+    with app.app_context():
+        db.create_all()
 
 # Check user authentication before each request
 @app.before_request
