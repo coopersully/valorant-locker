@@ -34,9 +34,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-# Create db tables that don't exist
-with app.app_context():
-    db.create_all()
 
 # Check user authentication before each request
 @app.before_request
@@ -109,7 +106,7 @@ def add_account():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.User.query.get(int(user_id))
+    return User.SiteUser.query.get(int(user_id))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -120,7 +117,7 @@ def login():
 
         print(f'Attempting to log in with username: {username}')
 
-        user = User.User.query.filter_by(username=username).first()
+        user = User.SiteUser.query.filter_by(username=username).first()
 
         if user:
             print(f'User found in the database: {user.username}')
@@ -161,15 +158,15 @@ def register():
 
         print(f'Attempting to register new user: {username}')
 
-        existing_user = User.User.query.filter_by(username=username).first()
+        existing_user = User.SiteUser.query.filter_by(username=username).first()
 
         if existing_user:
             flash('That username is already taken. Please choose a different one.', 'danger')
             print(f'Username {username} already exists.')
             return redirect(url_for('register'))
 
-        new_user = User.User(email=email, first_name=first_name, last_name=last_name, username=username,
-                             password=hash_it(password))
+        new_user = User.SiteUser(email=email, first_name=first_name, last_name=last_name, username=username,
+                                 password=hash_it(password))
 
         db.session.add(new_user)
         db.session.commit()
@@ -195,7 +192,7 @@ def control_panel():
         return redirect(url_for('access_denied'))
 
     if request.method == 'POST':
-        users = User.User.query.all()
+        users = User.SiteUser.query.all()
         for user in users:
             updated_username = request.form[f'username-{user.id}']
             updated_email = request.form[f'email-{user.id}']
@@ -213,7 +210,7 @@ def control_panel():
         flash('User information has been updated.', 'success')
         return redirect(url_for('control_panel'))
 
-    users = User.User.query.all()
+    users = User.SiteUser.query.all()
     return render_template('control_panel.html', users=users)
 
 
@@ -269,4 +266,6 @@ def access_denied():
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run()
