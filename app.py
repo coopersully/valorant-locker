@@ -34,9 +34,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-if database_exists(SQLALCHEMY_DATABASE_URI):
-    with app.app_context():
-        db.create_all()
+# Create db tables that don't exist
+with app.app_context():
+    db.create_all()
 
 # Check user authentication before each request
 @app.before_request
