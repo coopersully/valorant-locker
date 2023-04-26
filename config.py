@@ -12,4 +12,4 @@ DEFAULT_RR = "??"
 DEFAULT_LAST_UPDATED = datetime.strptime("01/01/1990", "%m/%d/%Y")
 
 MASTER_KEY = os.environ.get("master_key")
-SQLALCHEMY_DATABASE_URI = os.environ.get("sqlalchemy_database_uri", "sqlite://altbox.db")
+SQLALCHEMY_DATABASE_URI = os.environ.get("sqlalchemy_database_uri", "sqlite:///altbox.db")
