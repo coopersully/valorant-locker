@@ -27,7 +27,7 @@ db = SQLAlchemy(app)
 # Import custom models
 from models import User
 from models import ValorantAccount
-from models.User import is_master, hash_it, User
+from models.User import is_master, hash_it
 from models.ValorantAccount import ValorantAccount, fetch_account_details
 
 # Create all tables that don't exist
@@ -111,7 +111,7 @@ def add_account():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.User.query.get(int(user_id))
 
 
 @app.route('/login', methods=['GET', 'POST'])
