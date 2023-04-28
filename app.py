@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_utils import database_exists
+from werkzeug.security import check_password_hash
 
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
 
@@ -24,10 +24,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# Import custom models
 from models import User
-from models.User import is_master, hash_it
+from models import ValorantAccount
+from models.User import is_master, hash_it, User
 from models.ValorantAccount import ValorantAccount, fetch_account_details
-from werkzeug.security import check_password_hash
+
+# Create all tables that don't exist
+with app.app_context():
+    db.create_all()
 
 # Login functionality
 login_manager = LoginManager()
@@ -106,7 +111,7 @@ def add_account():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.User.query.get(int(user_id))
+    return User.query.get(int(user_id))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -166,7 +171,7 @@ def register():
             return redirect(url_for('register'))
 
         new_user = User.User(email=email, first_name=first_name, last_name=last_name, username=username,
-                                 password=hash_it(password))
+                             password=hash_it(password))
 
         db.session.add(new_user)
         db.session.commit()
@@ -266,6 +271,4 @@ def access_denied():
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run()
